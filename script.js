@@ -67,6 +67,8 @@ async function predict() {
 function showBirthdayMessage() {
 	const birthdayElement = document.getElementById('birthday-message');
 	const birthdayAudio = document.getElementById('birthday-audio');
+
+	console.log('semoga ica panjang umur, sehat selalu, bahagia selalu, sukses selalu, rajin menabung selalu, buang sampah pada tempatnya selalu, tidak kencing sembarangan selalu, tidak begadang selalu, cantik selalu, manis selalu, hot selalu, ahhhh 🥵. Happy birthday!');
 	
 	birthdayMessageShown = true;
 	
@@ -74,19 +76,15 @@ function showBirthdayMessage() {
 		clearTimeout(birthdayMessageTimeout);
 	}
 	
-	// Show the message
 	birthdayElement.classList.add('show');
 	
-	// Play the birthday song
-	birthdayAudio.currentTime = 0; // Reset to beginning
+	birthdayAudio.currentTime = 0;
 	birthdayAudio.play().catch(error => {
 		console.log('Audio play failed:', error);
-		// Fallback: try to play after user interaction
 	});
 	
 	birthdayMessageTimeout = setTimeout(() => {
 		birthdayElement.classList.remove('show');
-		// Stop the audio
 		birthdayAudio.pause();
 		birthdayAudio.currentTime = 0;
 		
