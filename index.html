@@ -216,13 +216,19 @@
 		<div class="container">
 			<h1>👤 Are you ica?</h1>
 
-			<div>Pendeteksi Ica</div>
 			<button type="button" id="start_button" onclick="init()">Start</button>
 			<div id="webcam-containers"></div>
 			<div id="label-container"></div>
 		</div>
 
 		<div id="birthday-message" class="birthday-message">🎉 Happy Birthday Ica! 🎂</div>
+
+		<!-- Audio element for birthday song -->
+		<audio id="birthday-audio" preload="auto">
+			<source src="stage_clear.wav" type="audio/mpeg" />
+			<source src="./audio/happy-birthday.ogg" type="audio/ogg" />
+			Your browser does not support the audio element.
+		</audio>
 
 		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>

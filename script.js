@@ -6,7 +6,7 @@ let birthdayMessageTimeout = null;
 let icaDetectionStartTime = null;
 let birthdayMessageShown = false;
 const DETECTION_DURATION = 1000;
-const MESSAGE_DURATION = 3000;
+const MESSAGE_DURATION = 5000;
 
 async function init() {
 	const modelURL = URL + "model.json";
@@ -66,6 +66,7 @@ async function predict() {
 
 function showBirthdayMessage() {
 	const birthdayElement = document.getElementById('birthday-message');
+	const birthdayAudio = document.getElementById('birthday-audio');
 	
 	birthdayMessageShown = true;
 	
@@ -73,10 +74,22 @@ function showBirthdayMessage() {
 		clearTimeout(birthdayMessageTimeout);
 	}
 	
+	// Show the message
 	birthdayElement.classList.add('show');
+	
+	// Play the birthday song
+	birthdayAudio.currentTime = 0; // Reset to beginning
+	birthdayAudio.play().catch(error => {
+		console.log('Audio play failed:', error);
+		// Fallback: try to play after user interaction
+	});
 	
 	birthdayMessageTimeout = setTimeout(() => {
 		birthdayElement.classList.remove('show');
+		// Stop the audio
+		birthdayAudio.pause();
+		birthdayAudio.currentTime = 0;
+		
 		birthdayMessageTimeout = null;
 		birthdayMessageShown = false;
 		icaDetectionStartTime = null;
