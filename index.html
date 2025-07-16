@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pendeteksi Ica</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.10.0/tf.min.js"></script>
+		<style>
+			body {
+				font-family: "Arial", sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				margin: 0;
+				padding: 20px;
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				color: white;
+				position: relative;
+				overflow: hidden;
+			}
+
+			.container {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(10px);
+				border-radius: 20px;
+				padding: 30px;
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+				text-align: center;
+				max-width: 600px;
+				width: 100%;
+			}
+
+			h1 {
+				margin-bottom: 20px;
+				font-size: 2.5em;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+			}
+
+			.instructions {
+				margin-bottom: 30px;
+				font-size: 1.1em;
+				line-height: 1.6;
+			}
+
+			#start_button {
+				background: linear-gradient(45deg, #4caf50, #45a049);
+				color: white;
+				border: none;
+				padding: 15px 30px;
+				font-size: 1.2em;
+				border-radius: 25px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+				margin-bottom: 20px;
+			}
+
+			#start_button:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+			}
+
+			#start_button:disabled {
+				background: #cccccc;
+				cursor: not-allowed;
+				transform: none;
+			}
+
+			.removed {
+				display: none;
+			}
+
+			#webcam-container {
+				margin: 20px 0;
+				border-radius: 15px;
+				overflow: hidden;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			}
+
+			#webcam-container canvas {
+				max-width: 100%;
+				height: auto;
+			}
+
+			#label-container {
+				margin-top: 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.prediction-item {
+				background: rgba(255, 255, 255, 0.2);
+				padding: 15px;
+				border-radius: 10px;
+				font-size: 1.1em;
+				transition: all 0.3s ease;
+			}
+
+			.prediction-item.ica {
+				background: rgba(0, 255, 0, 0.3);
+				animation: pulse 1s infinite;
+			}
+
+			.prediction-item.other {
+				background: rgba(255, 165, 0, 0.3);
+			}
+
+			@keyframes pulse {
+				0% {
+					transform: scale(1);
+				}
+				50% {
+					transform: scale(1.05);
+				}
+				100% {
+					transform: scale(1);
+				}
+			}
+
+			.status {
+				margin-top: 20px;
+				padding: 15px;
+				border-radius: 10px;
+				font-size: 1.2em;
+				font-weight: bold;
+			}
+
+			.status.loading {
+				background: rgba(255, 255, 0, 0.3);
+			}
+
+			.status.ready {
+				background: rgba(0, 255, 0, 0.3);
+			}
+
+			.status.error {
+				background: rgba(255, 0, 0, 0.3);
+			}
+
+			.demo-mode {
+				margin-top: 20px;
+				background: rgba(255, 255, 255, 0.1);
+				padding: 20px;
+				border-radius: 10px;
+			}
+
+			.demo-button {
+				background: linear-gradient(45deg, #2196f3, #1976d2);
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				margin: 5px;
+				border-radius: 20px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+			}
+
+			.demo-button:hover {
+				transform: translateY(-2px);
+			}
+
+			.birthday-message {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				font-size: 4em;
+				font-weight: bold;
+				color: #ff69b4;
+				text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+				z-index: 1000;
+				opacity: 0;
+				transition: opacity 0.5s ease-in-out;
+				pointer-events: none;
+				text-align: center;
+				background: rgba(255, 255, 255, 0.1);
+				padding: 20px 40px;
+				border-radius: 20px;
+				backdrop-filter: blur(10px);
+				border: 2px solid #ff69b4;
+				animation: rainbow 2s infinite;
+			}
+
+			.birthday-message.show {
+				opacity: 1;
+			}
+
+			@keyframes rainbow {
+				0% {
+					color: #ff69b4;
+				}
+				16% {
+					color: #ff0000;
+				}
+				33% {
+					color: #ff8c00;
+				}
+				50% {
+					color: #ffd700;
+				}
+				66% {
+					color: #00ff00;
+				}
+				83% {
+					color: #0080ff;
+				}
+				100% {
+					color: #ff69b4;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>👤 Are you ica?</h1>
+
+			<div>Pendeteksi Ica</div>
+			<button type="button" id="start_button" onclick="init()">Start</button>
+			<div id="webcam-containers"></div>
+			<div id="label-container"></div>
+		</div>
+
+		<div id="birthday-message" class="birthday-message">🎉 Happy Birthday Ica! 🎂</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+		<script type="text/javascript" src="script.js"></script>
+	</body>
+</html>
